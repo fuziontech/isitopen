@@ -29,5 +29,8 @@ COPY --from=builder /app/server /server
 # Copy the templates directory to the production image from the builder stage.
 COPY --from=builder /app/templates /templates
 
+# Copy the static directory to the production image from the builder stage.
+COPY --from=builder /app/static /static
+
 # Run the web service on container startup.
 CMD ["/server"]

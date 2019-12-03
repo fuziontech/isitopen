@@ -1,14 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/gin-gonic/gin"
 )
 
 type condPattern string
@@ -30,7 +30,7 @@ const (
 type HighwayStatus struct {
 	Name      string        `json:"name"`
 	Status    roadCondition `json:"status"`
-	UpdatedAt string        `json:"updatedAt"`
+	UpdatedAt time.Time     `json:"updatedAt"`
 }
 
 // StatusStore This is the store for statuses for now
@@ -58,7 +58,7 @@ func main() {
 			case <-done:
 				return
 			case t := <-ticker.C:
-				fmt.Println("Tick at", t)
+				log.Println("Tick at", t)
 				getCalTransStatus(&ss, "50")
 				getCalTransStatus(&ss, "80")
 			}
@@ -70,15 +70,14 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		// handle multiple domains
 		var road string
+		host := "is50open.com"
 		uri, ok := c.Get("location")
-		if !ok {
-			c.JSON(500, gin.H{
-				"reason": "Location unknown",
-			})
+		if ok {
+			host = uri.(*url.URL).Host
 		}
 		fiftyOpen := "is50open.com"
 		eightyOpen := "is80open.com"
-		switch uri.(*url.URL).Host {
+		switch host {
 		case fiftyOpen:
 			road = "50"
 		case eightyOpen:
@@ -86,26 +85,38 @@ func main() {
 		default:
 			road = "50"
 		}
-		// c.HTML(http.StatusOK, "index.html", gin.H{
-		// 	"title": "Main website",
-		// })
 		roadStatus := ss.Store[road]
-		c.JSON(http.StatusOK, roadStatus)
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"status": roadStatus,
+		})
 	})
 
-	r.GET("/:road", func(c *gin.Context) {
+	r.GET("/v1/road/:road", func(c *gin.Context) {
 		road := c.Param("road")
 		roadStatus := ss.Store[road]
 		c.JSON(http.StatusOK, roadStatus)
 	})
+
+	r.Static("/static", "./static")
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
 func getCalTransStatus(store *StatusStore, road string) {
 	resp := scrapeCalTrans(road)
-	updatedAt := resp[0]
 	strCond := getRoadCondition(resp[2])
+
+	// parse updatedAt from string from DOT
+	ua := strings.Split(resp[0], ",")
+	layout := "January 2nd, 2006 at 03:04 PM"
+	uas := ua[1] + "," + ua[2]
+	uas = strings.TrimSpace(uas)
+	uas = strings.Trim(uas, ".")
+	updatedAt, err := time.Parse(layout, uas)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	hs := HighwayStatus{
 		Name:      road,
 		Status:    strCond,
