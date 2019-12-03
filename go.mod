@@ -1,4 +1,4 @@
-module github.com/fuziontech/is50open
+module github.com/fuziontech/isitopen
 
 go 1.13
 
