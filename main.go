@@ -102,16 +102,33 @@ func main() {
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
+// for parsing the calendar date
+// map[ordinal]cardinal
+var ordinals = map[string]string{
+	"1st": "1", "2nd": "2", "3rd": "3", "4th": "4", "5th": "5",
+	"6th": "6", "7th": "7", "8th": "8", "9th": "9", "10th": "10",
+	"11th": "11", "12th": "12", "13th": "13", "14th": "14", "15th": "15",
+	"16th": "16", "17th": "17", "18th": "18", "19th": "19", "20th": "20",
+	"21st": "21", "22nd": "22", "23rd": "23", "24th": "24", "25th": "25",
+	"26th": "26", "27th": "27", "28th": "28", "29th": "29", "30th": "30",
+	"31st": "31",
+}
+
 func getCalTransStatus(store *StatusStore, road string) {
 	resp := scrapeCalTrans(road)
 	strCond := getRoadCondition(resp[2])
 
 	// parse updatedAt from string from DOT
 	ua := strings.Split(resp[0], ",")
-	layout := "January 2nd, 2006 at 03:04 PM"
+	layout := "January 2, 2006 at 03:04 PM"
 	uas := ua[1] + "," + ua[2]
 	uas = strings.TrimSpace(uas)
 	uas = strings.Trim(uas, ".")
+
+	for k, v := range ordinals {
+		uas = strings.Replace(uas, k, v, 1)
+	}
+
 	updatedAt, err := time.Parse(layout, uas)
 	if err != nil {
 		log.Fatalln(err)
