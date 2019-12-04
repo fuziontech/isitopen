@@ -28,9 +28,10 @@ const (
 
 // HighwayStatus contains the status for the highway in memory
 type HighwayStatus struct {
-	Name      string        `json:"name"`
-	Status    roadCondition `json:"status"`
-	UpdatedAt time.Time     `json:"updatedAt"`
+	Name        string        `json:"name"`
+	Status      roadCondition `json:"status"`
+	Description string        `json:"description"`
+	UpdatedAt   time.Time     `json:"updatedAt"`
 }
 
 // StatusStore This is the store for statuses for now
@@ -116,7 +117,8 @@ var ordinals = map[string]string{
 
 func getCalTransStatus(store *StatusStore, road string) {
 	resp := scrapeCalTrans(road)
-	strCond := getRoadCondition(resp[2])
+	longResponse := strings.Join(resp[2:], "\n")
+	strCond := getRoadCondition(longResponse)
 
 	// parse updatedAt from string from DOT
 	ua := strings.Split(resp[0], ",")
@@ -135,9 +137,10 @@ func getCalTransStatus(store *StatusStore, road string) {
 	}
 
 	hs := HighwayStatus{
-		Name:      road,
-		Status:    strCond,
-		UpdatedAt: updatedAt,
+		Name:        road,
+		Status:      strCond,
+		Description: longResponse,
+		UpdatedAt:   updatedAt,
 	}
 	store.Store[road] = hs
 }

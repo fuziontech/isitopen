@@ -5,12 +5,17 @@
   <body
     {{if eq .status.Status "OPEN" }}
     style="background-color: #50c878"
+    {{else if eq .status.Status "UNKNOWN"}}
+    style="background-color: yellow"
     {{else}}
     style="background-color: red"
     {{end}}
   >
     <center>
     <h1>Highway {{.status.Name}} is {{.status.Status}}</h1>
+    {{if ne .status.Status "OPEN" }}
+    <h2>{{.status.Description}}</h2>
+    {{end}}
     </center>
   </body>
   <footer></footer>
