@@ -17,13 +17,15 @@ type roadCondition string
 const (
 	updateInterval = 60 * time.Second
 
-	openPattern   condPattern = "NO TRAFFIC RESTRICTIONS ARE REPORTED FOR THIS AREA."
-	chainsPattern condPattern = "CHAINS ARE REQUIRED "
-	closedPattern condPattern = "CLOSED"
+	openPattern         condPattern = "NO TRAFFIC RESTRICTIONS ARE REPORTED FOR THIS AREA."
+	chainsPattern       condPattern = "CHAINS ARE REQUIRED "
+	closedPattern       condPattern = "CLOSED"
+	constructionPattern condPattern = "CONSTRUCTION"
 
-	open      roadCondition = "OPEN"
-	chainsReq roadCondition = "CHAINS"
-	closed    roadCondition = "CLOSED"
+	open         roadCondition = "OPEN"
+	chainsReq    roadCondition = "CHAINS"
+	closed       roadCondition = "CLOSED"
+	construction roadCondition = "CONSTRUCTION"
 )
 
 // HighwayStatus contains the status for the highway in memory
@@ -181,6 +183,8 @@ func getRoadCondition(resp string) roadCondition {
 		return open
 	case strings.Contains(resp, string(chainsPattern)):
 		return chainsReq
+	case strings.Contains(resp, string(constructionPattern)):
+		return construction
 	case strings.Contains(resp, string(closedPattern)):
 		return closed
 	default:

@@ -5,7 +5,7 @@
   <body
     {{if eq .status.Status "OPEN" }}
     style="background-color: #50c878"
-    {{else if eq .status.Status "UNKNOWN"}}
+    {{else if or (eq .status.Status "UNKNOWN") (eq .status.Status "CONSTRUCTION")}}
     style="background-color: yellow"
     {{else}}
     style="background-color: red"
