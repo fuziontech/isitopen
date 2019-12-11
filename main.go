@@ -19,12 +19,14 @@ const (
 
 	openPattern         condPattern = "NO TRAFFIC RESTRICTIONS ARE REPORTED FOR THIS AREA."
 	chainsPattern       condPattern = "CHAINS ARE REQUIRED "
+	advisoryPattern     condPattern = "ADVISORY"
 	closedPattern       condPattern = "CLOSED"
 	constructionPattern condPattern = "CONSTRUCTION"
 
 	open         roadCondition = "OPEN"
 	chainsReq    roadCondition = "CHAINS"
 	closed       roadCondition = "CLOSED"
+	advisory     roadCondition = "ADVISORY"
 	construction roadCondition = "CONSTRUCTION"
 )
 
@@ -190,6 +192,8 @@ func getRoadCondition(resp string) roadCondition {
 		return open
 	case strings.Contains(resp, string(chainsPattern)):
 		return chainsReq
+	case strings.Contains(resp, string(advisoryPattern)):
+		return advisory
 	case strings.Contains(resp, string(constructionPattern)):
 		return construction
 	case strings.Contains(resp, string(closedPattern)):
