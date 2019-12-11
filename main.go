@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/gin-contrib/location"
 	"github.com/gin-gonic/gin"
 )
 
@@ -66,8 +65,7 @@ func main() {
 			select {
 			case <-done:
 				return
-			case t := <-ticker.C:
-				log.Println("Tick at", t)
+			case <-ticker.C:
 				scrape(&ss)
 			}
 		}
@@ -77,18 +75,17 @@ func main() {
 	// configure to automatically detect scheme and host
 	// - use http when default scheme cannot be determined
 	// - use localhost:8080 when default host cannot be determined
-	r.Use(location.Default())
 	r.LoadHTMLGlob("templates/*")
 	r.GET("/", func(c *gin.Context) {
 		// handle multiple domains
 		var road string
-		url := location.Get(c)
+		url := c.Request.Host
 
 		// test to see where this request is coming from
 		fiftyOpen := "is50open.com"
 		eightyOpen := "is80open.com"
 		eighteight := "is88open.com"
-		switch url.Host {
+		switch url {
 		case fiftyOpen:
 			road = "50"
 		case eightyOpen:
