@@ -8,7 +8,7 @@
   <body
     {{if eq .status.Status "OPEN" }}
     style="background-color: #50c878"
-    {{else if or (eq .status.Status "UNKNOWN") (eq .status.Status "CONSTRUCTION")}}
+    {{else if or (eq .status.Status "UNKNOWN") (eq .status.Status "CONSTRUCTION") (eq .status.Status "ADVISORY")}}
     style="background-color: rgb(255, 255, 86)"
     {{else}}
     style="background-color: rgb(209, 83, 83)"
