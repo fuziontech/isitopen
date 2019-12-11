@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/gin-contrib/location"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,6 +42,12 @@ type StatusStore struct {
 	Store map[string]HighwayStatus
 }
 
+func scrape(ss *StatusStore) {
+	getCalTransStatus(ss, "50")
+	getCalTransStatus(ss, "80")
+	getCalTransStatus(ss, "88")
+}
+
 func main() {
 	// setup in memory store for status
 	ss := StatusStore{
@@ -48,8 +55,7 @@ func main() {
 	}
 
 	// boot up and grab the deets on main two roads
-	getCalTransStatus(&ss, "50")
-	getCalTransStatus(&ss, "80")
+	scrape(&ss)
 
 	// setup the ticker for scraping caltrans website
 	ticker := time.NewTicker(updateInterval)
@@ -62,29 +68,33 @@ func main() {
 				return
 			case t := <-ticker.C:
 				log.Println("Tick at", t)
-				getCalTransStatus(&ss, "50")
-				getCalTransStatus(&ss, "80")
+				scrape(&ss)
 			}
 		}
 	}()
 
 	r := gin.Default()
+	// configure to automatically detect scheme and host
+	// - use http when default scheme cannot be determined
+	// - use localhost:8080 when default host cannot be determined
+	r.Use(location.Default())
 	r.LoadHTMLGlob("templates/*")
 	r.GET("/", func(c *gin.Context) {
 		// handle multiple domains
 		var road string
-		host := "is50open.com"
-		uri, ok := c.Get("location")
-		if ok {
-			host = uri.(*url.URL).Host
-		}
+		url := location.Get(c)
+
+		// test to see where this request is coming from
 		fiftyOpen := "is50open.com"
 		eightyOpen := "is80open.com"
-		switch host {
+		eighteight := "is88open.com"
+		switch url.Host {
 		case fiftyOpen:
 			road = "50"
 		case eightyOpen:
 			road = "80"
+		case eighteight:
+			road = "88"
 		default:
 			road = "50"
 		}
