@@ -30,6 +30,10 @@ const (
 	construction roadCondition = "CONSTRUCTION"
 )
 
+var (
+	roads = [...]string{"50", "80", "88"}
+)
+
 // HighwayStatus contains the status for the highway in memory
 type HighwayStatus struct {
 	Name        string        `json:"name"`
@@ -44,9 +48,9 @@ type StatusStore struct {
 }
 
 func scrape(ss *StatusStore) {
-	getCalTransStatus(ss, "50")
-	getCalTransStatus(ss, "80")
-	getCalTransStatus(ss, "88")
+	for _, road := range roads {
+		getCalTransStatus(ss, road)
+	}
 }
 
 func main() {
@@ -101,6 +105,10 @@ func main() {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"status": roadStatus,
 		})
+	})
+
+	r.GET("/v1/roads", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"roads": roads})
 	})
 
 	r.GET("/v1/road/:road", func(c *gin.Context) {
