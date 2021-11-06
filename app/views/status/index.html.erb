@@ -1,0 +1,33 @@
+<style>
+    body {
+        background-color: <% if @status == "OPEN" %> #50c878
+<% elsif @status == "UNKNOWN" or @status == "CONSTRUCTION" or @status == "ADVISORY" %>
+    rgb(255, 255, 86)
+<% else %>
+    rgb(209, 83, 83)<% end %>
+    }
+</style>
+<div class="container">
+  <div class="row">
+    <div
+      class="status col-sm">
+      <div class="row">
+        <div class="status-headline col-sm">
+          <h1 class="text-2xl">Highway <%= @name %> status: <%= @status %></h1>
+          <% if @status != "OPEN" %>
+            </div>
+            </div>
+            <div class="row">
+              <div class="status-description col-sm">
+                <h2><%= @description %></h2>
+              </div>
+            </div>
+          <% end %>
+          <div class="row">
+            <div class="status-description col-sm">
+              <h4><%= @statusTime %></h4>
+            </div>
+          </div>
+          </div>
+  </div>
+</div>
