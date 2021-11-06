@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  roadName: MyText
+  status: MyText
+  description: MyText
+  updatedAt: 2021-11-05 18:48:52
+
+two:
+  roadName: MyText
+  status: MyText
+  description: MyText
+  updatedAt: 2021-11-05 18:48:52

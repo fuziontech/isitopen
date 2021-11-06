@@ -9,6 +9,12 @@ def getRoadStatus(road)
     "CLOSED" => "CLOSED",
     "CONSTRUCTION" => "CONSTRUCTION"
   }
+  # lookup cache
+  cachedStatus = RoadStatus.where('"roadName" = ? AND "calTransUpdatedAt" >= ?', road.to_s, (Time.current - (10 * 60 * 60))).first
+  if cachedStatus
+    return cachedStatus
+  end
+
   params = {
     "roadnumber" => road,
   }
@@ -25,7 +31,12 @@ def getRoadStatus(road)
       status = statusPatternMap[pattern]
     end
   end
-  return statusTime, status, statusText
+  cachedStatus = RoadStatus.new
+  cachedStatus.roadName = road
+  cachedStatus.status = status
+  cachedStatus.calTransUpdatedAt = statusTime
+  cachedStatus.save
+  return cachedStatus
 end
 
 class StatusController < ApplicationController
@@ -42,21 +53,21 @@ class StatusController < ApplicationController
     else
       road = 50
     end
-    statusTime, status, statusText = getRoadStatus(road)
-    @status = status
-    @description = statusText
-    @statusTime = statusTime.strftime("%B %d, %Y at %-I:%M%p")
-    @name = road
+    status = getRoadStatus(road)
+    @status = status.status
+    @description = status.description
+    @statusTime = status.calTransUpdatedAt.strftime("%B %d, %Y at %-I:%M%p")
+    @name = status.roadName
   end
 
   def api
     road = params[:road]
-    statusTime, status, statusText = getRoadStatus(road)
+    status = getRoadStatus(road)
     statusMap = {
-      "name" => road,
-      "status" => status,
-      "description" => statusText,
-      "UpdatedAt" => statusTime,
+      "name" => status.roadName,
+      "status" => status.status,
+      "description" => status.description,
+      "UpdatedAt" => status.calTransUpdatedAt,
     }
     render json: statusMap
   end

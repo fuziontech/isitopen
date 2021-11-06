@@ -1,0 +1,2 @@
+class RoadStatus < ApplicationRecord
+end

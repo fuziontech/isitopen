@@ -14,6 +14,8 @@ default: &default
 
 development:
   <<: *default
+  username: james
+  password: james
   database: isitopen_dev
 
 # Warning: The database defined as "test" will be erased and
